@@ -2,10 +2,18 @@
   "name": "@lukapg/energy-price",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
+    "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Luka Prebil Grintal",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^4.25.2"
+  }
 }
