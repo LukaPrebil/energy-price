@@ -1,11 +1,13 @@
 import Fastify from "fastify";
+import { getPrice } from "./getPrice.js";
 
 const fastify = Fastify({
   logger: true,
 });
 
-fastify.get("/", async (request, reply) => {
-  return { hello: "world" };
+fastify.get("/:provider", async (request, reply) => {
+  const { provider } = request.params;
+  return await getPrice(provider);
 });
 
 const start = async () => {
