@@ -29,8 +29,8 @@ permissions:
 env:
   PROJECT_ID: energy-price-api
   PROJECT_NUMBER: 1029532440814
-  WIF_PROVIDER: projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-  SERVICE_ACCOUNT: terraform@${PROJECT_ID}.iam.gserviceaccount.com
+  WIF_PROVIDER: projects/1029532440814/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+  SERVICE_ACCOUNT: terraform@energy-price-api.iam.gserviceaccount.com
   REGISTRY: europe-west1-docker.pkg.dev
   IMAGE_NAME: energy-price-api
 
