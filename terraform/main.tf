@@ -7,10 +7,19 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 5.10.0"
     }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 5.10.0"
+    }
   }
 }
 
 provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
+provider "google-beta" {
   project = var.project_id
   region  = var.region
 }
@@ -40,4 +49,21 @@ module "wif_provider" {
   project          = var.project_id
   service_accounts = module.wif_service_accounts.emails_list
   repos            = var.repositories
+}
+
+resource "google_artifact_registry_repository" "docker_repository" {
+  provider = google-beta
+
+  location      = var.region
+  repository_id = "cloud-run"
+  description   = "Docker repository for Cloud Run service images"
+  format        = "DOCKER"
+
+  cleanup_policies {
+    id     = "keep-minimum-versions"
+    action = "KEEP"
+    most_recent_versions {
+      keep_count = 3
+    }
+  }
 }
