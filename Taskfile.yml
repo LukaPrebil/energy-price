@@ -1,0 +1,24 @@
+version: "3"
+
+env:
+  TF_LOG: | # Change if you want detailed terraform logs. Can accept JSON, TRACE, DEBUG, INFO, WARN or ERROR
+    {{- .TF_LOG | default "ERROR" -}}
+tasks:
+  default:
+    - task: tf
+  tf-validate: terraform validate
+  tf-format: terraform fmt -recursive
+
+  tf:
+    desc: run any terraform command
+    env:
+      # https://developer.hashicorp.com/terraform/cli/config/environment-variables
+      # This will run for all commands.
+      TF_CLI_ARGS: -var-file=env/prod.tfvars
+      # This will run only for `init`.
+      TF_CLI_ARGS_init: |
+        -reconfigure -upgrade -backend-config="bucket=energy-price-api-tf-state"
+    cmds:
+      - task: tf-format
+      - terraform -chdir=terraform {{.CLI_ARGS}}
+      - task: tf-validate
