@@ -11,3 +11,7 @@ apis = [
   "storage-component.googleapis.com",
   "apigateway.googleapis.com",
 ]
+
+repositories = [
+  "energy-price"
+]
