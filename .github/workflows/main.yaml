@@ -1,0 +1,136 @@
+name: Deploy Workflow
+run-name: Deploy ${{ inputs.github-ref || 'main' }} to ${{ inputs.environment || 'prod' }} by @${{ github.actor }}
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      github-ref:
+        description: "The branch, tag or SHA to checkout"
+        type: string
+        default: ""
+      environment:
+        description: "Environment on which to deploy (dev | prod)"
+        required: true
+        type: choice
+        options:
+            - prod
+
+#  Required for OIDC
+permissions:
+  actions: read
+  checks: write
+  contents: write
+  id-token: write
+  pull-requests: write
+
+env:
+  PROJECT_ID: energy-price-api
+  PROJECT_NUMBER: 1029532440814
+  WIF_PROVIDER: projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+  SERVICE_ACCOUNT: terraform@${PROJECT_ID}.iam.gserviceaccount.com
+  REGISTRY: europe-west1-docker.pkg.dev
+  IMAGE_NAME: energy-price-api
+
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+    name: Build and publish Docker image
+    outputs:
+      hash: ${{ steps.hash.outputs.SHORT_SHA }}
+      is-rebuilt: ${{ steps.changed-files-specific.outputs.any_changed == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.github-ref }}
+          fetch-depth: 0
+
+      - name: Check if any file changed in specified dirs
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v40
+        with:
+          since_last_remote_commit: false
+          files: |
+            src/**
+
+      - name: Obtain short SHA of the last commit in checked branch
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        id: hash
+        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and cache image
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: "."
+          cache-to: type=gha
+          provenance: false
+
+  publish:
+    needs: [build-docker-image]
+    if: needs.build-docker-image.outputs.is-rebuilt
+    runs-on: ubuntu-latest
+    name: Publish Docker image to artifact registry
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.github-ref }}
+          fetch-depth: 0
+      
+      - id: auth
+        name: Authenticate to GCP (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: europe-west1-docker.pkg.dev
+          username: oauth2accesstoken
+          password: steps.auth.outputs.access_token
+
+      - name: Load cached image and push tagged to artifact registry
+        id: publish
+        uses: docker/build-push-action@v5
+        with:
+          context: "."
+          cache-from: type=gha
+          # Example: europe-west1-docker.pkg.dev/project-id/cloud-run/service-name:ae43d5f
+          tags: |
+            ${{ format(
+              '{0}/{1}/cloud-run/{2}:latest',
+              env.REGISTRY,
+              env.PROJECT_ID,
+              env.IMAGE_NAME
+            ) }}
+            ${{ format(
+              '{0}/{1}/cloud-run/{2}:{3}',
+              env.REGISTRY,
+              env.PROJECT_ID,
+              env.IMAGE_NAME,
+              needs.build-docker-image.outputs.hash
+            ) }}
+          outputs: type=registry
+          provenance: false
