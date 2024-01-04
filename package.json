@@ -12,7 +12,8 @@
     "inspect": "nodemon --inspect",
     "lint": "eslint --max-warnings=0 --cache .",
     "lint:fix": "eslint --max-warnings=0 --cache --fix .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "docker compose up",
+    "dev:build": "docker compose up --build"
   },
   "author": "Luka Prebil Grintal",
   "license": "ISC",

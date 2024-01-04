@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  fastify:
+    container_name: energy-price-api
+    restart: unless-stopped
+    build:
+      context: .
+      target: development
+    volumes:
+      - ./src:/usr/src/app/src
+    environment:
+      ENVIRONMENT: dev
+      CLOUD_PROVIDER: local
+      LOCATION: europe-west1
+    ports:
+      - 8080:8080
