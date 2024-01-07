@@ -83,6 +83,8 @@ jobs:
     if: ${{ needs.build-docker-image.outputs.is-rebuilt == 'true' || inputs.force-rebuild }}
     runs-on: ubuntu-latest
     name: Publish Docker image to Artifact registry
+    outputs:
+      image-sha: ${{ steps.publish.outputs.digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -139,5 +141,33 @@ jobs:
               env.SHORT_SHA
             ) }}
 
-      - name: Set output
-        run: echo "IMAGE_SHA=${{ steps.publish.outputs.digest }}"
+  tf-deploy:
+    needs: [publish]
+    if: ${{ always()}}
+    runs-on: ubuntu-latest
+    name: Deploy to GCP
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.github-ref }}
+      
+      - name: Print outputs
+        run: echo "Image SHA ${{ needs.publish.outputs.image-sha }}"
+
+      - name: Authenticate to GCP (OIDC)
+        uses: google-github-actions/auth@v2
+        id: auth
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform plan
+        run: terraform plan
