@@ -170,6 +170,7 @@ jobs:
 
       - name: Terraform init
         run: terraform init
+        working-directory: ${{ env.WORK_DIR }}
 
       - name: Terraform plan
         run: terraform plan
