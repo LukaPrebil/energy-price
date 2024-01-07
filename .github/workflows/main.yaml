@@ -109,7 +109,7 @@ jobs:
         with:
           registry: europe-west1-docker.pkg.dev
           username: oauth2accesstoken
-          password: steps.auth.outputs.access_token
+          password: ${{ steps.auth.outputs.access_token }}
 
       - name: Load cached image and push tagged to artifact registry
         id: publish
