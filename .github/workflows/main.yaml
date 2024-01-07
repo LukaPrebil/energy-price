@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and publish Docker image
     outputs:
-      is-rebuilt: ${{ steps.changed-files-specific.outputs.any_changed || inputs.force-rebuild }}
+      is-rebuilt: ${{ steps.changed-files-specific.outputs.any_changed }}
 
     steps:
       - name: Checkout
@@ -80,7 +80,7 @@ jobs:
 
   publish:
     needs: [build-docker-image]
-    if: ${{ needs.build-docker-image.outputs.is-rebuilt == 'true' }}
+    if: ${{ needs.build-docker-image.outputs.is-rebuilt == 'true' || inputs.force-rebuild }}
     runs-on: ubuntu-latest
     name: Publish Docker image to artifact registry
     steps:
