@@ -17,6 +17,11 @@ on:
         type: choice
         options:
             - prod
+      force-rebuild:
+        description: "Force rebuild of Docker image"
+        required: false
+        type: boolean
+        default: false
 
 #  Required for OIDC
 permissions:
@@ -39,8 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and publish Docker image
     outputs:
-      hash: ${{ steps.hash.outputs.SHORT_SHA }}
-      is-rebuilt: ${{ steps.changed-files-specific.outputs.any_changed }}
+      is-rebuilt: ${{ steps.changed-files-specific.outputs.any_changed || inputs.force-rebuild }}
 
     steps:
       - name: Checkout
@@ -56,22 +60,18 @@ jobs:
           since_last_remote_commit: false
           files: |
             src/**
-
-      - name: Obtain short SHA of the last commit in checked branch
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
-        id: hash
-        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_OUTPUT
+            config.json
 
       - name: Set up QEMU
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.changed-files-specific.outputs.any_changed == 'true' || inputs.force-rebuild
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.changed-files-specific.outputs.any_changed == 'true' || inputs.force-rebuild
         uses: docker/setup-buildx-action@v3
 
       - name: Build and cache image
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.changed-files-specific.outputs.any_changed == 'true' || inputs.force-rebuild
         uses: docker/build-push-action@v5
         with:
           context: "."
@@ -84,10 +84,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish Docker image to artifact registry
     steps:
-
-      - name: print
-        run: echo ${{ needs.build-docker-image.outputs.is-rebuilt }}
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
