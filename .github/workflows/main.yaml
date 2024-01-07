@@ -174,5 +174,5 @@ jobs:
         working-directory: ${{ env.WORK_DIR }}
 
       - name: Terraform plan
-        run: terraform plan
+        run: terraform plan -lock-timeout=5m -no-color -input=false -var-file="./env/${{ inputs.environment || 'prod' }}.tfvars" -var="image_sha=${{ needs.publish.outputs.image-sha }}"
         working-directory: ${{ env.WORK_DIR }}
