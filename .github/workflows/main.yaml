@@ -130,7 +130,7 @@ jobs:
               env.REGISTRY,
               env.PROJECT_ID,
               env.IMAGE_NAME,
-              needs.build-docker-image.outputs.hash
+              ${{ needs.build-docker-image.outputs.hash }}
             ) }}
           outputs: type=registry
           provenance: false
