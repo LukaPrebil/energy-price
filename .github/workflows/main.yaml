@@ -83,10 +83,6 @@ jobs:
     if: needs.build-docker-image.outputs.is-rebuilt
     runs-on: ubuntu-latest
     name: Publish Docker image to artifact registry
-    env:
-      # This is the short SHA of the last commit in the checked branch
-      # It is used to tag the image
-      SHORT_SHA: ${{ needs.build-docker-image.outputs.hash }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -114,6 +110,10 @@ jobs:
           registry: europe-west1-docker.pkg.dev
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Obtain short SHA of the last commit in checked branch
+        id: hash
+        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
       - name: Load cached image and push tagged to artifact registry
         id: publish
