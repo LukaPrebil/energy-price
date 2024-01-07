@@ -67,3 +67,16 @@ resource "google_artifact_registry_repository" "docker_repository" {
     }
   }
 }
+
+module "cloud_run" {
+  source  = "GoogleCloudPlatform/cloud-run/google"
+  version = "~> 0.10.0"
+
+  project_id   = var.project_id
+  location     = var.region
+  image        = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repository.name}/${var.service_name}"
+  service_name = var.service_name
+  service_annotations = {
+    "run.googleapis.com/ingress" : "internal-and-cloud-load-balancing"
+  }
+}

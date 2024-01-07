@@ -1,5 +1,6 @@
-region     = "europe-west1"
-project_id = "energy-price-api"
+region       = "europe-west1"
+project_id   = "energy-price-api"
+service_name = "energy-price-api"
 
 apis = [
   "artifactregistry.googleapis.com",
