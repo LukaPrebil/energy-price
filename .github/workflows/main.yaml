@@ -83,6 +83,10 @@ jobs:
     if: needs.build-docker-image.outputs.is-rebuilt
     runs-on: ubuntu-latest
     name: Publish Docker image to artifact registry
+    env:
+      # This is the short SHA of the last commit in the checked branch
+      # It is used to tag the image
+      SHORT_SHA: ${{ needs.build-docker-image.outputs.hash }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -130,7 +134,7 @@ jobs:
               env.REGISTRY,
               env.PROJECT_ID,
               env.IMAGE_NAME,
-              ${{ needs.build-docker-image.outputs.hash }}
+              env.SHORT_SHA
             ) }}
           outputs: type=registry
           provenance: false
