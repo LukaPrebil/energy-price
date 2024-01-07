@@ -84,6 +84,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish Docker image to artifact registry
     steps:
+
+      - name: print
+        run: echo ${{ needs.build-docker-image.outputs.is-rebuilt }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -138,3 +142,5 @@ jobs:
             ) }}
           outputs: type=registry
           provenance: false
+      - name: Set output
+        run: echo "IMAGE_SHA=${{ steps.publish.outputs.digest }}"
