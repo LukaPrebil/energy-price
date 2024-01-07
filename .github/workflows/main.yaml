@@ -38,6 +38,7 @@ env:
   SERVICE_ACCOUNT: terraform@energy-price-api.iam.gserviceaccount.com
   REGISTRY: europe-west1-docker.pkg.dev
   IMAGE_NAME: energy-price-api
+  TF_STATE_BUCKET: energy-price-api-tf-state
 
 jobs:
   build-docker-image:
@@ -169,7 +170,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform init
-        run: terraform init
+        run: terraform init -reconfigure -backend-config="bucket=${{ env.TF_STATE_BUCKET }}"
         working-directory: ${{ env.WORK_DIR }}
 
       - name: Terraform plan
