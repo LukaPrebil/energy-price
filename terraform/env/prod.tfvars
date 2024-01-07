@@ -11,6 +11,7 @@ apis = [
   "secretmanager.googleapis.com",
   "storage-component.googleapis.com",
   "apigateway.googleapis.com",
+  "servicecontrol.googleapis.com",
 ]
 
 repositories = [
