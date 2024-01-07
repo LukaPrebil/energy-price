@@ -146,6 +146,8 @@ jobs:
     if: ${{ always()}}
     runs-on: ubuntu-latest
     name: Deploy to GCP
+    env: 
+      WORK_DIR: "./terraform"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -171,3 +173,4 @@ jobs:
 
       - name: Terraform plan
         run: terraform plan
+        working-directory: ${{ env.WORK_DIR }}
