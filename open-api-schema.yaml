@@ -1,0 +1,27 @@
+swagger: "2.0"
+info:
+  title: Energy price API
+  description: API for fetching current energy price data for any provider in Slovenia
+  version: 1.0.0
+definitions: {}
+paths:
+  /{provider}:
+    get:
+      operationId: /:provider
+      x-google-backend:
+        address: "https://energy-price-api.eu/:provider"
+      parameters:
+        - type: string
+          required: true
+          in: path
+          name: provider
+      responses:
+        "200":
+          description: Default Response
+host: api.energyprice.si
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
