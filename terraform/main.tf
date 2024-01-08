@@ -76,7 +76,4 @@ module "cloud_run" {
   location     = var.region
   image        = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repository.name}/${var.service_name}"
   service_name = var.service_name
-  service_annotations = {
-    "run.googleapis.com/ingress" : "internal-and-cloud-load-balancing"
-  }
 }
