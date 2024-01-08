@@ -24,6 +24,10 @@ provider "google-beta" {
   region  = var.region
 }
 
+locals {
+  cloud_run_image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repository.name}/${var.service_name}:${var.image_tag != "" ? var.image_tag : "latest"}"
+}
+
 resource "google_project_service" "project-apis" {
   for_each                   = toset(var.apis)
   service                    = each.value
@@ -74,6 +78,6 @@ module "cloud_run" {
 
   project_id   = var.project_id
   location     = var.region
-  image        = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repository.name}/${var.service_name}"
+  image        = local.cloud_run_image
   service_name = var.service_name
 }
