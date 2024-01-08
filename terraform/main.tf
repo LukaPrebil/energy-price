@@ -80,4 +80,11 @@ module "cloud_run" {
   location     = var.region
   image        = local.cloud_run_image
   service_name = var.service_name
+
+  template_annotations = {
+    "autoscaling.knative.dev/maxScale" : 2,
+    "autoscaling.knative.dev/minScale" : 0,
+    "generated-by" : "terraform",
+    "run.googleapis.com/client-name" : "terraform"
+  }
 }

@@ -26,5 +26,5 @@ variable "service_name" {
 variable "image_tag" {
   type        = string
   description = "Tag of the image"
-  default = "latest"
+  default     = "latest"
 }
