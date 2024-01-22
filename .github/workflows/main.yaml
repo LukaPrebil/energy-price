@@ -56,7 +56,7 @@ jobs:
 
       - name: Check if any file changed in specified dirs
         id: changed-files-specific
-        uses: tj-actions/changed-files@v41
+        uses: tj-actions/changed-files@v42
         with:
           since_last_remote_commit: false
           files: |
