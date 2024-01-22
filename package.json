@@ -18,7 +18,7 @@
   "author": "Luka Prebil Grintal",
   "license": "ISC",
   "dependencies": {
-    "@fastify/swagger": "^8.13.0",
+    "@fastify/swagger": "^8.14.0",
     "@fastify/swagger-ui": "^2.0.1",
     "dayjs": "^1.11.10",
     "fastify": "^4.25.2",
