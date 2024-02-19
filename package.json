@@ -19,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/swagger": "^8.13.0",
-    "@fastify/swagger-ui": "^2.0.1",
+    "@fastify/swagger-ui": "^3.0.0",
     "dayjs": "^1.11.10",
     "fastify": "^4.25.2",
     "pino": "^8.17.2",
